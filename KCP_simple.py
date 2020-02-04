@@ -138,11 +138,11 @@ for t in range(Time):
 
     #Infection for each node
     to_infect_list=[]
-    for i in range(Num_HCW):                      #Cicling only on the HCW because the infection is
-        if G.nodes[i]['State']==['Colonized']:    #only possible by the HCW
-            neighbours=list(G.neighbors(i))
+    for node in G.nodes():
+        if G.nodes[node]['State']==['Colonized']:
+            neighbours=list(G.neighbors(node))
             for j in range(len(neighbours)):
-                if G.nodes[neighbours[j]]['States']==['Uncolonized']:
+                if G.nodes[neighbours[j]]['State']==['Uncolonized']:
                     rand_inf=random.uniform(0,1)
                     if rand_inf<=alpha:
                         to_infect_list.append(neighbours[j])
