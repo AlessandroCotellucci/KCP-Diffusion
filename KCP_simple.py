@@ -12,22 +12,21 @@ fig=plt.figure()
 camera=Camera(fig)
 
 #Preparing the graph
-#10 HCW nodes, each with 8 patient nodes as maximum number
-G=fast_gnp_random_graph(10, 0.5, seed=None, directed=False)
+#Num_HCW HCW nodes, each with 8 patient nodes as maximum number
+Num_HCW=10
+G=fast_gnp_random_graph(Num_HCW, 0.5, seed=None, directed=False)
 Role=['HCW']
 set_node_attributes(G, Role, 'Role')
-
 fixed_pos=spring_layout(G)     #Setting the layout to fix the position of the HCW nodes in the plot
 
-for n in range(len(G.nodes())):           #Adding the patient nodes 8 for
+for n in range(len(G.nodes())):           #Adding the patient nodes, 8 for
     for i in range(8):                    #each HCW
         new=9*(n+1)+i+1
         G.add_node(new,Role=['Patient'])
         G.add_edge(n,new)
 
 State=['Uncolonized']
-set_node_attributes(G, State, 'State')   #Setting all the states to uncolonized
-
+set_node_attributes(G, State,'State')   #Setting all the states to uncolonized
 pos = spring_layout(G,pos=fixed_pos,fixed=fixed_pos.keys())   #Layout of the node with fixed the HCW nodes
 
 
@@ -51,19 +50,19 @@ for t in range(Time):
     node_HCW=[]
     node_colorH=[]
     node_Patient=[]
-    for node in G.nodes():                         #Cicle to set the color for each node
-        if G.nodes[node]["State"]==['Uncolonized']:#green for uncolonized patient and
-            if G.nodes[node]["Role"]==['HCW']:     #red for colonized patient.
-                node_colorH.append('green')        #Also the style is setted: points for
-                node_HCW.append(node)              #patient and triangles for the HCW
-            if G.nodes[node]["Role"]==['Patient']:
+    for node in G.nodes():                          #Cicle to set the color for each node
+        if G.nodes[node]['State']==['Uncolonized']: #green for uncolonized patient and
+            if G.nodes[node]['Role']==['HCW']:      #red for colonized patient.
+                node_colorH.append('green')         #Also the style is setted: points for
+                node_HCW.append(node)               #patient and triangles for the HCW
+            if G.nodes[node]['Role']==['Patient']:
                 node_colorP.append('green')
                 node_Patient.append(node)
-        if G.nodes[node]["State"]==['Colonized']:
-            if G.nodes[node]["Role"]==['HCW']:
+        if G.nodes[node]['State']==['Colonized']:
+            if G.nodes[node]['Role']==['HCW']:
                 node_HCW.append(node)
                 node_colorH.append('red')
-            if G.nodes[node]["Role"]==['Patient']:
+            if G.nodes[node]['Role']==['Patient']:
                 node_Patient.append(node)
                 node_colorP.append('red')
 
@@ -84,12 +83,12 @@ for t in range(Time):
     #Removing the nodes
     to_remove_list=[]
     for node in G.nodes():
-        if G.nodes[node]["Role"]==['Patient']:
-            if G.nodes[node]["State"]==['Colonized']:
+        if G.nodes[node]['Role']==['Patient']:
+            if G.nodes[node]['State']==['Colonized']:
                 rand_colon=random.uniform(0,1)
                 if rand_colon<=mu_c:
                     to_remove_list.append(node)
-            if G.nodes[node]["State"]==['Uncolonized']:
+            if G.nodes[node]['State']==['Uncolonized']:
                 rand_uncolon=random.uniform(0,1)
                 if rand_uncolon<=mu_u:
                     to_remove_list.append(node)
@@ -103,49 +102,32 @@ for t in range(Time):
     to_add_list_uncol=[]
     to_add_list_link=[]
     newnum=big_node
-    for node in G.nodes():
-        if G.nodes[node]["Role"]==['HCW']:
-            neighbours=list(G.neighbors(node))
-            patient_num=0
-            for j in range(len(neighbours)):
-                if G.nodes[neighbours[j]]["Role"]==['Patient']:
-                    patient_num=patient_num+1
-            if patient_num<8:
-                rand_colon=random.uniform(0,1)
-                rand_unc=random.uniform(0,1)
-                if rand_colon<=phi*lambd and rand_unc>=(1-phi)*lambd:
-                    to_add_list_col.append(newnum)
-                    to_add_list_link.append((node,newnum))
+    for i in range(Num_HCW):                          #Cicling only on the HCW because we can only add patient to the HCW
+        neighbours=list(G.neighbors(i))
+        patient=[j for j in range(len(neighbours)) if G.nodes[neighbours[j]]['Role']==['Patient']] #Counting the number of patient for each node
+        patient_num=len(patient)
+
+        if patient_num<7:
+            rand_admis=random.uniform(0,1)
+            if rand_admis<=lambd:
+                rand_pat=random.uniform(0,1)
+                if rand_pat<=phi:
+                    to_add_list_col.append(newnum)   #add colonized node
+                    to_add_list_link.append((i,newnum))
                     newnum=newnum+1
-                if rand_colon>=phi*lambd and rand_unc<=(1-phi)*lambd:
-                    to_add_list_uncol.append(newnum)
-                    to_add_list_link.append((node,newnum))
-                    newnum=newnum+1
-                if patient_num==7:                                        #If the number of nodes is equal to 7 and we have to add 2 nodes
-                    if rand_colon<=phi*lambd and rand_unc<=(1-phi)*lambd: #(one colonized and one uncolonized) than one of the two is randomly chosed
-                        rand_choice=random.randint(0,1)
-                        if rand_choice==0:
-                            to_add_list_col.append(newnum)
-                            to_add_list_link.append((node,newnum))
-                            newnum=newnum+1
-                        else:
-                            to_add_list_uncol.append(newnum)
-                            to_add_list_link.append((node,newnum))
-                            newnum=newnum+1
                 else:
-                    if rand_colon<=phi*lambd and rand_unc<=(1-phi)*lambd:
-                        to_add_list_col.append(newnum)
-                        to_add_list_link.append((node,newnum))
-                        to_add_list_uncol.append(newnum+1)
-                        to_add_list_link.append((node,newnum+1))
-                        newnum=newnum+2
+                    to_add_list_uncol.append(newnum)  #add uncolonized node
+                    to_add_list_link.append((i,newnum))
+                    newnum=newnum+1
+
+
 
     #Adding of the nodes to the graph
     for i in range(len(to_add_list_col)):
-        G.add_node(to_add_list_col[i],Role=['Patient'], State=['Colonized'])
+        G.add_node(to_add_list_col[i], Role=['Patient'], State=['Colonized'])
 
     for i in range(len(to_add_list_uncol)):
-        G.add_node(to_add_list_uncol[i],Role=['Patient'], State=['Uncolonized'])
+        G.add_node(to_add_list_uncol[i], Role=['Patient'], State=['Uncolonized'])
 
     for i in range(len(to_add_list_link)):
         G.add_edge(*to_add_list_link[i])
@@ -156,24 +138,21 @@ for t in range(Time):
 
     #Infection for each node
     to_infect_list=[]
-    for node in G.nodes():
-        if G.nodes[node]["State"]==['Colonized']:
-            neighbours=list(G.neighbors(node))
+    for i in range(Num_HCW):                      #Cicling only on the HCW because the infection is
+        if G.nodes[i]['State']==['Colonized']:    #only possible by the HCW
+            neighbours=list(G.neighbors(i))
             for j in range(len(neighbours)):
-                iop=True
-                for r in range(len(to_infect_list)):
-                    if to_infect_list[r]==neighbours[j]:
-                        iop=False
-                if iop:
-                    if G.nodes[neighbours[j]]["State"]==['Uncolonized']:
-                        rand_inf=random.uniform(0,1)
-                        if rand_inf<=alpha:
-                            to_infect_list.append(neighbours[j])
-                            infected_list.append(neighbours[j])
+                if G.nodes[neighbours[j]]['States']==['Uncolonized']:
+                    rand_inf=random.uniform(0,1)
+                    if rand_inf<=alpha:
+                        to_infect_list.append(neighbours[j])
+
+
+    to_infect_list=list(set(to_infect_list))  #Keeping only the unique value for each colonized node
 
     for i in range(len(to_infect_list)):
         G.nodes[to_infect_list[i]]['State']=['Colonized']
-
+        infected_list.append(to_infect_list[i])
 
 
 #Final Plot
@@ -182,18 +161,18 @@ node_HCW=[]
 node_colorH=[]
 node_Patient=[]
 for node in G.nodes():
-    if G.nodes[node]["State"]==['Uncolonized']:
-        if G.nodes[node]["Role"]==['HCW']:
+    if G.nodes[node]['State']==['Uncolonized']:
+        if G.nodes[node]['Role']==['HCW']:
             node_colorH.append('green')
             node_HCW.append(node)
-        if G.nodes[node]["Role"]==['Patient']:
+        if G.nodes[node]['Role']==['Patient']:
             node_colorP.append('green')
             node_Patient.append(node)
-    if G.nodes[node]["State"]==['Colonized']:
-        if G.nodes[node]["Role"]==['HCW']:
+    if G.nodes[node]['State']==['Colonized']:
+        if G.nodes[node]['Role']==['HCW']:
             node_HCW.append(node)
             node_colorH.append('red')
-        if G.nodes[node]["Role"]==['Patient']:
+        if G.nodes[node]['Role']==['Patient']:
             node_Patient.append(node)
             node_colorP.append('red')
 
