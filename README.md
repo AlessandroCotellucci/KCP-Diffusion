@@ -5,6 +5,5 @@ The model implemented allow also the contagion between HCW. The model is based o
 Bibliography:
 1. Transmission Dynamics of Carbapenemase-Producing Klebsiella Pneumoniae and Anticipated Impact of Infection Control Strategies in a Surgical Unit; Vana Sypsa, Mina Psichogiou, Georgia-Aikaterina Bouzala, Linos Hadjihannas, Angelos Hatzakis, Georgios L. Daikos
 2. Mathematics of Epidemics on Networks; István Z. Kiss, Joel C. Miller, Péter L. Simon
-3. Model versions and fast algorithms for network epidemiology; Petter Holme
-\\
+3. Model versions and fast algorithms for network epidemiology; Petter Holme\
 Image description
