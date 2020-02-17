@@ -35,12 +35,17 @@ alpha=0.21    #Probability of colonization
 phi=0.05      #Probability that the patient added is colonized
 lambd=1       #Probability to add a patient
 mu_HC=0.5     #Probability of a colonized HCW to become uncolonized
-p=0.7
+p=0
 #Colonized admition rate phi*lambd
 #Uncolonized admition rate (1-phi)*lambd
 
 Time=1000 #Time steps of the simulation (days)
 Frac_Col=zeros(Time,'double')
+Frac_Uncol=zeros(Time,'double')
+Uncol_HCW=zeros(Time,'double')
+Col_HCW=zeros(Time,'double')
+Uncol_pat=zeros(Time,'double')
+Col_pat=zeros(Time,'double')
 tim=zeros(Time,'int')
 #Begin of the time simulation
 for t in range(Time):
@@ -137,17 +142,43 @@ for t in range(Time):
         G.nodes[to_infect_list[i]]['State']=['Colonized']
         infected_list.append(to_infect_list[i])
 
+    #Counting the nodes
     for node in G.nodes():
         if G.nodes[node]['State']==['Colonized']:
             Frac_Col[t]=Frac_Col[t]+1
+            if G.nodes[node]['Role']==['Patient']:
+                Col_pat[t]=Col_pat[t]+1
+            else:
+                Col_HCW[t]=Col_HCW[t]+1
+        else:
+            if G.nodes[node]['Role']==['Patient']:
+                Uncol_pat[t]=Uncol_pat[t]+1
+            else:
+                Uncol_HCW[t]=Uncol_HCW[t]+1
+
     Frac_Col[t]=Frac_Col[t]/len(G.nodes())
+    Frac_Uncol[t]=1-Frac_Col[t]
     tim[t]=t
 
 
 
-#Plot the total number of colonized nodes for time step
-plt.plot(tim,Frac_Col,'r')
-plt.xlabel(r'$t$')
-plt.ylabel('Fraction of colonized nodes for each time step')
+#Plot the ratio of colonized nodes for time step
+plt.plot(tim,Frac_Col,'r',label='Colonized')
+plt.plot(tim,Frac_Uncol,'g',label='Uncolonized')
+plt.legend(loc='upper right')
+plt.xlabel('Time')
+plt.ylabel('Relative number of nodes')
 plt.title('Diffusion of CPKP')
 plt.show()
+
+#Plot the total number of colonized nodes for time step
+plt.plot(tim,Col_pat,'r',label='Colonized Patient')
+plt.plot(tim,Uncol_pat,'g',label='Uncolonized Patient')
+plt.plot(tim,Col_HCW,'y',label='Colonized HCW')
+plt.plot(tim,Uncol_HCW,'blue',label='Uncolonized HCW')
+plt.legend(loc='upper right')
+plt.xlabel('Time')
+plt.ylabel('Absolute number of nodes')
+plt.title('Diffusion of CPKP')
+plt.show()
+
