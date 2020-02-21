@@ -53,7 +53,7 @@ for t in range(Time):
     #Adding the methods to remove the diffusion after the beginning of the contagion
     if t>Time/2:
         phi=0        #Isolation of admitted colonized patient
-        alpha=0.4*(1-p)    #Head washing to decrease the probability to became colonized after the contact
+        alpha=0.21*(1-p)    #Head washing to decrease the probability to became colonized after the contact
 
 
     #Decontaminatio of the HCW
