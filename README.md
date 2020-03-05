@@ -19,3 +19,4 @@ Image description:
 8. Minimum_contaminatio_restriction_(RG)_absolute.png: Plot of absolute value of nodes respect to che time in the low contamination restriction (p=0.7)
 9. Moving_HCW_Graph_Diffusion.png: Relative number of contaminated nodes respect to the p (percentage of head washing in the HCW group) for the HCW's network made by a moving HCW graph (at each time step the HCWs are all shifted to the next patient room) graph, with high probability admission
 10. Random_Graph_Diffusion.png: Relative number of contaminated nodes respect to the p (percentage of head washing in the HCW group) for the HCW's network made by a random graph, with high probability admission
+11. Mean_field_T.png: mena field threshold
